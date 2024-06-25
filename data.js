@@ -1,0 +1,48 @@
+export const users = [
+    {
+        id:1,
+        name:"jano",
+        age:11,
+    },
+    {
+        id:2,
+        name:"valeri",
+        age:21,
+    },
+    {
+        id:3,
+        name:"bacho",
+        age:29,
+    },
+    {
+        id:4,
+        name:"temuri",
+        age:44,
+    },
+]
+export const expenses = [
+    {
+        id:1,
+        cost:2000,
+        description:"pirveli",
+        userId:1,
+    },
+    {
+        id:2,
+        cost:3100,
+        description:"meore",
+        userId:1,
+    },
+    {
+        id:3,
+        cost:3100,
+        description:"mesame",
+        userId:4,
+    },
+    {
+        id:4,
+        cost:4300,
+        description:"meotxe",
+        userId:3,
+    },
+]
