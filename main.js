@@ -1,49 +1,105 @@
-import {ApolloServer} from "@apollo/server"
-import { startStandaloneServer } from "@apollo/server/standalone"
-import { typeDefs } from "./schema.js"
-import { expenses, users } from "./data.js"
-
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { typeDefs } from "./schema.js";
+import { expenses, users } from "./data.js";
 
 const resolvers = {
-    Query:{
-        users(){
-            return users
-        },
-        expenses(){
-            return expenses
-        },
-        user(parent,args){
-            console.log(parent,args)
-            const {id} = args
-            return users.find(el => el.id == id)
-        }
+  Query: {
+    users() {
+      return users;
     },
-    Expense: {
-        user(parent,args){
-            return users.find(el => el.id == parent.userId)
-        }
+    expenses() {
+      return expenses;
     },
-    User:{
-        expenses(parent){
-            return expenses.filter(el => el.id == parent.id)
-        }
+    user(parent, args) {
+      console.log(parent, args);
+      const { id } = args;
+      return users.find(el => el.id == id);
     },
-    Mutation:{
-        deleteUser(_,args){
-            const { id } = args
-            const index = users.findIndex(el => el.id == id)
-            if(index == -1) return null
-            const user = users.splice(index,1)
-            return user[0]
-        }
+    expense(parent, args) {
+      const { id } = args;
+      return expenses.find(el => el.id == id);
     }
-}
+  },
+  Expense: {
+    user(parent, args) {
+      return users.find(el => el.id == parent.userId);
+    }
+  },
+  User: {
+    expenses(parent) {
+      return expenses.filter(el => el.userId == parent.id);
+    }
+  },
+  Mutation: {
+    deleteUser(_, args) {
+      const { id } = args;
+      const index = users.findIndex(el => el.id == id);
+      if (index === -1) return null;
+      const user = users.splice(index, 1);
+      return user[0];
+    },
+    createUser(_, args) {
+      const lastId = users[users.length - 1]?.id || 0;
+      const newUser = {
+        id: lastId + 1,
+        ...args,
+      };
+      users.push(newUser);
+      return newUser;
+    },
+    updateUser(_, args) {
+      const { id, name, age } = args;
+      const index = users.findIndex(el => el.id == id);
+      if (index === -1) return null;
 
-const server =  new ApolloServer({
-    typeDefs,
-    resolvers
-})
+      const updatedUser = {
+        ...users[index],
+        ...(name && { name }),
+        ...(age && { age }),
+      };
 
-const { url } =  await startStandaloneServer(server,{listen:3000})
+      users[index] = updatedUser;
+      return updatedUser;
+    },
+    createExpense(_, args) {
+      const lastId = expenses[expenses.length - 1]?.id || 0;
+      const newExpense = {
+        id: lastId + 1,
+        ...args,
+      };
+      expenses.push(newExpense);
+      return newExpense;
+    },
+    updateExpense(_, args) {
+      const { id, cost, description } = args;
+      const index = expenses.findIndex(el => el.id == id);
+      if (index === -1) return null;
 
-console.log(`server running on ${url}`)
+      const updatedExpense = {
+        ...expenses[index],
+        ...(cost && { cost }),
+        ...(description && { description }),
+      };
+
+      expenses[index] = updatedExpense;
+      return updatedExpense;
+    },
+    deleteExpense(_, args) {
+      const { id } = args;
+      const index = expenses.findIndex(el => el.id == id);
+      if (index === -1) return null;
+      const expense = expenses.splice(index, 1);
+      return expense[0];
+    }
+  }
+};
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+const { url } = await startStandaloneServer(server, { listen: 3000 });
+
+console.log(`server running on ${url}`);
